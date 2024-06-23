@@ -1,45 +1,38 @@
-import streamlit as st
-import pandas as pd
-import numpy as np
+from flask import Flask, render_template, request
 import joblib
-from sklearn.preprocessing import StandardScaler
+import numpy as np
 
-# Load trained models
-random_forest_model = joblib.load('/content/drive/My Drive/Colab Notebooks//random_forest_model.sav')
-xgboost_model = joblib.load('/content/drive/My Drive/Colab Notebooks//xgboost_model.sav')
-gradient_boosting_model = joblib.load('/content/drive/My Drive/Colab Notebooks//gradient_boosting_model.sav')
+app = Flask(__name__, template_folder='C:\\Users\\ronel\\OneDrive\\Desktop\\templates')
 
-# Define feature list
-selected_features = [
-    'movement_reactions', 'potential', 'passing', 'wage_eur', 'value_eur',
-    'dribbling', 'attacking_short_passing', 'international_reputation', 'skill_long_passing',
-    'physic', 'age', 'skill_ball_control', 'shooting', 'skill_curve', 'weak_foot',
-    'skill_moves', 'skill_dribbling', 'attacking_finishing'
-]
+# Load your trained models (ensure paths are correct)
+loaded_rfr_model = joblib.load('final_rfr_model.pkl')
+loaded_xgb_model = joblib.load('final_xgb_model.pkl')
+loaded_gb_model = joblib.load('final_gb_model.pkl')
 
-# Streamlit app
-st.title("FIFA Player Rating Prediction")
+# Define a function to process user input and make predictions
+def predict_rating(input_features):
+    # Preprocess input_features to match model requirements
+    # Example: Convert input_features into numpy array and scale if needed
+    # Make predictions using loaded models
+    rf_prediction = loaded_rfr_model.predict(input_features)[0]
+    xgb_prediction = loaded_xgb_model.predict(input_features)[0]
+    gb_prediction = loaded_gb_model.predict(input_features)[0]
+    return rf_prediction, xgb_prediction, gb_prediction
 
-# Input form
-st.header("Player Information")
-input_data = {}
-for feature in selected_features:
-    input_data[feature] = st.number_input(f"Enter {feature.replace('_', ' ')}", value=0.0)
+# Define routes
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    if request.method == 'POST':
+        # Extract input data from form submission
+        feature1 = float(request.form['feature1'])
+        # Process input features into a format suitable for prediction
+        input_data = np.array([[feature1]])  # Example for single feature input
+        # Get predictions
+        rf_pred, xgb_pred, gb_pred = predict_rating(input_data)
+        # Return prediction results to display
+        return render_template('index.html', prediction=rf_pred, confidence='High')  # Example: confidence score
+    # Render default template if method is GET
+    return render_template('index.html')
 
-# Convert to DataFrame
-input_df = pd.DataFrame([input_data])
-
-# Standardize input
-scaler = StandardScaler()
-input_scaled = scaler.fit_transform(input_df)
-
-# Make predictions
-rf_prediction = random_forest_model.predict(input_scaled)[0]
-xgb_prediction = xgboost_model.predict(input_scaled)[0]
-gb_prediction = gradient_boosting_model.predict(input_scaled)[0]
-
-# Display predictions
-st.header("Predicted Player Ratings")
-st.write(f"Random Forest Prediction: {rf_prediction:.2f}")
-st.write(f"XGBoost Prediction: {xgb_prediction:.2f}")
-st.write(f"Gradient Boosting Prediction: {gb_prediction:.2f}")
+if __name__ == '__main__':
+    app.run(debug=True)
