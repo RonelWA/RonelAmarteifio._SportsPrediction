@@ -1,1 +1,5 @@
 joblib==1.1.0
+pandas==1.3.3  # Example, include all other dependencies your project needs
+numpy==1.21.2  # Example, include all other dependencies your project needs
+scikit-learn==0.24.2  # Example, include all other dependencies your project needs
+streamlit==0.87.0  # Example, include all other dependencies your project needs
