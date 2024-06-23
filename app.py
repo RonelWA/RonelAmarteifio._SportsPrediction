@@ -5,9 +5,9 @@ import joblib
 from sklearn.preprocessing import StandardScaler
 
 # Load trained models
-random_forest_model = joblib.load('./random_forest_model.sav')
-xgboost_model = joblib.load('./xgboost_model.sav')
-gradient_boosting_model = joblib.load('./gradient_boosting_model.sav')
+random_forest_model = joblib.load('/content/drive/My Drive/Colab Notebooks//random_forest_model.sav')
+xgboost_model = joblib.load('/content/drive/My Drive/Colab Notebooks//xgboost_model.sav')
+gradient_boosting_model = joblib.load('/content/drive/My Drive/Colab Notebooks//gradient_boosting_model.sav')
 
 # Define feature list
 selected_features = [
